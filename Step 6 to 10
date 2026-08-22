@@ -1,0 +1,796 @@
+// =====================================================
+// 6. ITINERARY VIEW SCREEN
+// =====================================================
+
+class ItineraryViewScreen extends StatelessWidget {
+  final Trip trip;
+
+  const ItineraryViewScreen({
+    super.key,
+    required this.trip,
+  });
+
+  String formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final stops = List<TripStop>.from(trip.stops);
+
+    stops.sort((a, b) => a.date.compareTo(b.date));
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Itinerary'),
+      ),
+
+      body: stops.isEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(30),
+
+                child: Column(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center,
+
+                  children: [
+                    Icon(
+                      Icons.map_outlined,
+                      size: 85,
+                      color: Colors.deepPurple
+                          .withOpacity(0.5),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    const Text(
+                      'No itinerary yet',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight:
+                            FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      'Start adding cities and activities to build your travel plan.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color:
+                            Colors.grey.shade600,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ItineraryBuilderScreen(
+                              trip: trip,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text(
+                        'Build Itinerary',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(18),
+
+              itemCount: stops.length,
+
+              itemBuilder: (context, index) {
+                final stop = stops[index];
+
+                final isFirst =
+                    index == 0;
+
+                final showDate =
+                    isFirst ||
+                        formatDate(
+                              stops[index - 1].date,
+                            ) !=
+                            formatDate(stop.date);
+
+                return Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+
+                  children: [
+                    if (showDate) ...[
+                      if (!isFirst)
+                        const SizedBox(height: 20),
+
+                      Container(
+                        padding:
+                            const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 10,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: Colors.deepPurple
+                              .withOpacity(0.1),
+                          borderRadius:
+                              BorderRadius.circular(12),
+                        ),
+
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today,
+                              color:
+                                  Colors.deepPurple,
+                              size: 18,
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            Text(
+                              formatDate(stop.date),
+                              style:
+                                  const TextStyle(
+                                fontWeight:
+                                    FontWeight.bold,
+                                color:
+                                    Colors.deepPurple,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+                    ],
+
+                    _itineraryCard(
+                      stop,
+                      index + 1,
+                    ),
+                  ],
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _itineraryCard(
+    TripStop stop,
+    int number,
+  ) {
+    return Row(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+
+      children: [
+        Column(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundColor:
+                  Colors.deepPurple,
+
+              child: Text(
+                '$number',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight:
+                      FontWeight.bold,
+                ),
+              ),
+            ),
+
+            Container(
+              width: 2,
+              height: 90,
+              color: Colors.deepPurple
+                  .withOpacity(0.25),
+            ),
+          ],
+        ),
+
+        const SizedBox(width: 14),
+
+        Expanded(
+          child: Card(
+            margin:
+                const EdgeInsets.only(bottom: 12),
+
+            child: Padding(
+              padding:
+                  const EdgeInsets.all(16),
+
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          stop.city,
+                          style:
+                              const TextStyle(
+                            fontSize: 19,
+                            fontWeight:
+                                FontWeight.bold,
+                          ),
+                        ),
+                      ),
+
+                      Text(
+                        stop.time,
+                        style: const TextStyle(
+                          color:
+                              Colors.deepPurple,
+                          fontWeight:
+                              FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 7),
+
+                  Text(
+                    stop.activity,
+                    style: TextStyle(
+                      color:
+                          Colors.grey.shade700,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Row(
+                    children: [
+                      _tag(
+                        Icons.category,
+                        stop.category,
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      _tag(
+                        Icons.currency_rupee,
+                        '₹${stop.cost.toStringAsFixed(0)}',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _tag(
+    IconData icon,
+    String text,
+  ) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 7,
+      ),
+
+      decoration: BoxDecoration(
+        color:
+            Colors.deepPurple.withOpacity(0.08),
+        borderRadius:
+            BorderRadius.circular(20),
+      ),
+
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+
+        children: [
+          Icon(
+            icon,
+            size: 15,
+            color: Colors.deepPurple,
+          ),
+
+          const SizedBox(width: 4),
+
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// =====================================================
+// 7. CITY SEARCH SCREEN
+// =====================================================
+
+class CitySearchScreen extends StatefulWidget {
+  const CitySearchScreen({
+    super.key,
+  });
+
+  @override
+  State<CitySearchScreen> createState() =>
+      _CitySearchScreenState();
+}
+
+class _CitySearchScreenState
+    extends State<CitySearchScreen> {
+  String searchText = '';
+  String selectedCountry = 'All';
+
+  final List<Map<String, String>> cities = [
+    {
+      'name': 'Ahmedabad',
+      'country': 'India',
+      'region': 'Gujarat',
+      'cost': 'Affordable',
+      'popularity': '★★★★☆',
+      'description':
+          'A vibrant city known for heritage, food and culture.',
+    },
+    {
+      'name': 'Goa',
+      'country': 'India',
+      'region': 'India',
+      'cost': 'Moderate',
+      'popularity': '★★★★★',
+      'description':
+          'Beautiful beaches, nightlife and adventure activities.',
+    },
+    {
+      'name': 'Mumbai',
+      'country': 'India',
+      'region': 'Maharashtra',
+      'cost': 'Expensive',
+      'popularity': '★★★★★',
+      'description':
+          'India’s financial capital with iconic attractions.',
+    },
+    {
+      'name': 'Jaipur',
+      'country': 'India',
+      'region': 'Rajasthan',
+      'cost': 'Moderate',
+      'popularity': '★★★★★',
+      'description':
+          'The Pink City famous for forts and royal history.',
+    },
+    {
+      'name': 'Delhi',
+      'country': 'India',
+      'region': 'Delhi',
+      'cost': 'Moderate',
+      'popularity': '★★★★★',
+      'description':
+          'A historic city with monuments, markets and food.',
+    },
+    {
+      'name': 'Paris',
+      'country': 'France',
+      'region': 'Europe',
+      'cost': 'Expensive',
+      'popularity': '★★★★★',
+      'description':
+          'Famous for art, fashion, architecture and landmarks.',
+    },
+    {
+      'name': 'Dubai',
+      'country': 'UAE',
+      'region': 'Middle East',
+      'cost': 'Expensive',
+      'popularity': '★★★★★',
+      'description':
+          'Modern attractions, shopping and luxury experiences.',
+    },
+    {
+      'name': 'Tokyo',
+      'country': 'Japan',
+      'region': 'Asia',
+      'cost': 'Expensive',
+      'popularity': '★★★★★',
+      'description':
+          'A perfect mix of technology, culture and food.',
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredCities =
+        cities.where((city) {
+      final matchesSearch =
+          city['name']!
+                  .toLowerCase()
+                  .contains(
+                    searchText.toLowerCase(),
+                  ) ||
+              city['country']!
+                  .toLowerCase()
+                  .contains(
+                    searchText.toLowerCase(),
+                  );
+
+      final matchesCountry =
+          selectedCountry == 'All' ||
+              city['country'] ==
+                  selectedCountry;
+
+      return matchesSearch &&
+          matchesCountry;
+    }).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Search Cities'),
+      ),
+
+      body: Column(
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.all(18),
+
+            child: Column(
+              children: [
+                TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      searchText = value;
+                    });
+                  },
+
+                  decoration:
+                      const InputDecoration(
+                    hintText:
+                        'Search city or country...',
+                    prefixIcon:
+                        Icon(Icons.search),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                SingleChildScrollView(
+                  scrollDirection:
+                      Axis.horizontal,
+
+                  child: Row(
+                    children: [
+                      _filterChip('All'),
+
+                      _filterChip('India'),
+
+                      _filterChip('France'),
+
+                      _filterChip('UAE'),
+
+                      _filterChip('Japan'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: filteredCities.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No cities found',
+                    ),
+                  )
+                : ListView.builder(
+                    padding:
+                        const EdgeInsets.fromLTRB(
+                      18,
+                      0,
+                      18,
+                      20,
+                    ),
+
+                    itemCount:
+                        filteredCities.length,
+
+                    itemBuilder:
+                        (context, index) {
+                      final city =
+                          filteredCities[index];
+
+                      return _cityCard(city);
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterChip(String country) {
+    final isSelected =
+        selectedCountry == country;
+
+    return Padding(
+      padding:
+          const EdgeInsets.only(right: 8),
+
+      child: ChoiceChip(
+        label: Text(country),
+
+        selected: isSelected,
+
+        onSelected: (_) {
+          setState(() {
+            selectedCountry = country;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _cityCard(
+    Map<String, String> city,
+  ) {
+    return Card(
+      margin:
+          const EdgeInsets.only(bottom: 14),
+
+      child: Padding(
+        padding:
+            const EdgeInsets.all(16),
+
+        child: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.all(12),
+
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple
+                        .withOpacity(0.1),
+                    borderRadius:
+                        BorderRadius.circular(15),
+                  ),
+
+                  child: const Icon(
+                    Icons.location_city,
+                    color: Colors.deepPurple,
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+
+                    children: [
+                      Text(
+                        city['name']!,
+                        style:
+                            const TextStyle(
+                          fontSize: 19,
+                          fontWeight:
+                              FontWeight.bold,
+                        ),
+                      ),
+
+                      Text(
+                        '${city['region']}, ${city['country']}',
+                        style: TextStyle(
+                          color: Colors
+                              .grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const Icon(
+                  Icons.bookmark_border,
+                  color: Colors.deepPurple,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            Text(
+              city['description']!,
+              style: TextStyle(
+                color: Colors.grey.shade700,
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            Row(
+              children: [
+                _cityInfo(
+                  Icons.account_balance_wallet,
+                  city['cost']!,
+                ),
+
+                const SizedBox(width: 16),
+
+                Text(
+                  city['popularity']!,
+                  style: const TextStyle(
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _cityInfo(
+    IconData icon,
+    String text,
+  ) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 17,
+          color: Colors.deepPurple,
+        ),
+
+        const SizedBox(width: 5),
+
+        Text(
+          text,
+          style: const TextStyle(
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =====================================================
+// 8. ACTIVITY SEARCH SCREEN
+// =====================================================
+
+class ActivitySearchScreen
+    extends StatefulWidget {
+  final Trip trip;
+
+  const ActivitySearchScreen({
+    super.key,
+    required this.trip,
+  });
+
+  @override
+  State<ActivitySearchScreen>
+      createState() =>
+          _ActivitySearchScreenState();
+}
+
+class _ActivitySearchScreenState
+    extends State<ActivitySearchScreen> {
+  String selectedFilter = 'All';
+
+  final List<Map<String, dynamic>>
+      activities = [
+    {
+      'name': 'City Sightseeing',
+      'category': 'Sightseeing',
+      'cost': 500.0,
+      'duration': '3 Hours',
+      'icon': Icons.camera_alt,
+      'description':
+          'Explore famous landmarks and beautiful attractions.',
+    },
+    {
+      'name': 'Local Food Tour',
+      'category': 'Food',
+      'cost': 800.0,
+      'duration': '2 Hours',
+      'icon': Icons.restaurant,
+      'description':
+          'Taste popular local dishes and authentic food.',
+    },
+    {
+      'name': 'Water Sports',
+      'category': 'Adventure',
+      'cost': 1500.0,
+      'duration': '4 Hours',
+      'icon': Icons.kayaking,
+      'description':
+          'Enjoy an exciting outdoor adventure experience.',
+    },
+    {
+      'name': 'Shopping Market Visit',
+      'category': 'Shopping',
+      'cost': 1000.0,
+      'duration': '2 Hours',
+      'icon': Icons.shopping_bag,
+      'description':
+          'Visit local markets and discover unique products.',
+    },
+    {
+      'name': 'Museum Visit',
+      'category': 'Sightseeing',
+      'cost': 300.0,
+      'duration': '2 Hours',
+      'icon': Icons.museum,
+      'description':
+          'Discover history, culture and amazing collections.',
+    },
+    {
+      'name': 'Mountain Trek',
+      'category': 'Adventure',
+      'cost': 1200.0,
+      'duration': '5 Hours',
+      'icon': Icons.terrain,
+      'description':
+          'Enjoy nature with an exciting trekking experience.',
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredActivities =
+        selectedFilter == 'All'
+            ? activities
+            : activities
+                .where(
+                  (activity) =>
+                      activity['category'] ==
+                      selectedFilter,
+                )
+                .toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Activity Search',
+        ),
+      ),
+
+      body: Column(
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.all(18),
+
+            child:
+                SingleChildScrollView(
+              scrollDirection:
+                  Axis.horizontal,
+
+              child: Row(
+                children: [
+                  _f
