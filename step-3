@@ -1,0 +1,339 @@
+import 'package:flutter/material.dart';
+
+class CreateTripScreen extends StatefulWidget {
+  const CreateTripScreen({super.key});
+
+  @override
+  State<CreateTripScreen> createState() => _CreateTripScreenState();
+}
+
+class _CreateTripScreenState extends State<CreateTripScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  final tripNameController = TextEditingController();
+  final destinationController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final budgetController = TextEditingController();
+
+  DateTime? startDate;
+  DateTime? endDate;
+
+  Future<void> selectStartDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2035),
+    );
+
+    if (picked != null) {
+      setState(() {
+        startDate = picked;
+      });
+    }
+  }
+
+  Future<void> selectEndDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: startDate ?? DateTime.now(),
+      firstDate: startDate ?? DateTime.now(),
+      lastDate: DateTime(2035),
+    );
+
+    if (picked != null) {
+      setState(() {
+        endDate = picked;
+      });
+    }
+  }
+
+  String formatDate(DateTime? date) {
+    if (date == null) return "Select Date";
+
+    return "${date.day}/${date.month}/${date.year}";
+  }
+
+  void saveTrip() {
+    if (_formKey.currentState!.validate() &&
+        startDate != null &&
+        endDate != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Trip created successfully! ✈️"),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please complete all required details"),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "Create New Trip",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+      ),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+
+        child: Form(
+          key: _formKey,
+
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+
+              // HEADER
+              const Text(
+                "Let's plan your adventure! 🌍",
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              const Text(
+                "Enter your trip details and we'll help you organize everything.",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // COVER PHOTO
+              InkWell(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Image upload feature coming soon"),
+                    ),
+                  );
+                },
+
+                child: Container(
+                  height: 170,
+                  width: double.infinity,
+
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Colors.deepPurple,
+                        Colors.purpleAccent,
+                      ],
+                    ),
+
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: [
+                      Icon(
+                        Icons.add_photo_alternate_outlined,
+                        size: 55,
+                        color: Colors.white,
+                      ),
+
+                      SizedBox(height: 10),
+
+                      Text(
+                        "Add Cover Photo",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      SizedBox(height: 5),
+
+                      Text(
+                        "Optional",
+                        style: TextStyle(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // TRIP NAME
+              TextFormField(
+                controller: tripNameController,
+
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter trip name";
+                  }
+                  return null;
+                },
+
+                decoration: InputDecoration(
+                  labelText: "Trip Name",
+                  hintText: "Example: My Goa Adventure",
+                  prefixIcon: const Icon(Icons.card_travel),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // DESTINATION
+              TextFormField(
+                controller: destinationController,
+
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter destination";
+                  }
+                  return null;
+                },
+
+                decoration: InputDecoration(
+                  labelText: "Main Destination",
+                  hintText: "Example: Goa, India",
+                  prefixIcon: const Icon(Icons.location_on),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // DATE ROW
+              Row(
+                children: [
+
+                  Expanded(
+                    child: InkWell(
+                      onTap: selectStartDate,
+
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: "Start Date",
+                          prefixIcon: const Icon(Icons.calendar_today),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+
+                        child: Text(formatDate(startDate)),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: InkWell(
+                      onTap: selectEndDate,
+
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: "End Date",
+                          prefixIcon: const Icon(Icons.event),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+
+                        child: Text(formatDate(endDate)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 18),
+
+              // BUDGET
+              TextFormField(
+                controller: budgetController,
+                keyboardType: TextInputType.number,
+
+                decoration: InputDecoration(
+                  labelText: "Estimated Budget",
+                  hintText: "Example: 15000",
+                  prefixText: "₹ ",
+                  prefixIcon: const Icon(Icons.account_balance_wallet),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // DESCRIPTION
+              TextFormField(
+                controller: descriptionController,
+                maxLines: 4,
+
+                decoration: InputDecoration(
+                  labelText: "Trip Description",
+                  hintText: "Tell us about your trip...",
+                  alignLabelWithHint: true,
+                  prefixIcon: const Padding(
+                    padding: EdgeInsets.only(bottom: 70),
+                    child: Icon(Icons.description),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // SAVE BUTTON
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+
+                child: ElevatedButton.icon(
+                  onPressed: saveTrip,
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text(
+                    "CREATE TRIP",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
