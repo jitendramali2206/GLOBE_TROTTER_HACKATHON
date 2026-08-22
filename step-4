@@ -1,0 +1,330 @@
+class MyTripsScreen extends StatefulWidget {
+  const MyTripsScreen({super.key});
+
+  @override
+  State<MyTripsScreen> createState() => _MyTripsScreenState();
+}
+
+class _MyTripsScreenState extends State<MyTripsScreen> {
+  final List<Map<String, dynamic>> trips = [
+    {
+      "name": "Goa Beach Adventure",
+      "destination": "Goa, India",
+      "date": "15 Sep - 20 Sep",
+      "budget": "₹15,000",
+      "icon": Icons.beach_access,
+    },
+    {
+      "name": "Manali Escape",
+      "destination": "Manali, India",
+      "date": "10 Oct - 15 Oct",
+      "budget": "₹20,000",
+      "icon": Icons.landscape,
+    },
+    {
+      "name": "Mumbai City Tour",
+      "destination": "Mumbai, India",
+      "date": "5 Nov - 8 Nov",
+      "budget": "₹12,000",
+      "icon": Icons.location_city,
+    },
+  ];
+
+  void deleteTrip(int index) {
+    setState(() {
+      trips.removeAt(index);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Trip deleted"),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "My Trips",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreateTripScreen(),
+            ),
+          );
+        },
+
+        icon: const Icon(Icons.add),
+        label: const Text("New Trip"),
+      ),
+
+      body: trips.isEmpty
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+
+                children: [
+                  Icon(
+                    Icons.luggage_outlined,
+                    size: 80,
+                    color: Colors.grey,
+                  ),
+
+                  SizedBox(height: 15),
+
+                  Text(
+                    "No trips yet!",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  SizedBox(height: 8),
+
+                  Text(
+                    "Start planning your next adventure.",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
+            )
+
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+
+              itemCount: trips.length,
+
+              itemBuilder: (context, index) {
+                final trip = trips[index];
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 18),
+
+                  child: Card(
+                    elevation: 4,
+
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+
+                    child: Padding(
+                      padding: const EdgeInsets.all(18),
+
+                      child: Column(
+                        children: [
+
+                          // TOP ROW
+                          Row(
+                            children: [
+
+                              Container(
+                                height: 60,
+                                width: 60,
+
+                                decoration: BoxDecoration(
+                                  color: Colors.deepPurple.shade100,
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+
+                                child: Icon(
+                                  trip["icon"],
+                                  color: Colors.deepPurple,
+                                  size: 32,
+                                ),
+                              ),
+
+                              const SizedBox(width: 15),
+
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+
+                                  children: [
+
+                                    Text(
+                                      trip["name"],
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 5),
+
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.location_on_outlined,
+                                          size: 16,
+                                          color: Colors.grey,
+                                        ),
+
+                                        const SizedBox(width: 4),
+
+                                        Text(
+                                          trip["destination"],
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              PopupMenuButton(
+                                onSelected: (value) {
+                                  if (value == "delete") {
+                                    deleteTrip(index);
+                                  }
+
+                                  if (value == "edit") {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CreateTripScreen(),
+                                      ),
+                                    );
+                                  }
+                                },
+
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: "edit",
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit),
+                                        SizedBox(width: 10),
+                                        Text("Edit"),
+                                      ],
+                                    ),
+                                  ),
+
+                                  const PopupMenuItem(
+                                    value: "delete",
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.delete),
+                                        SizedBox(width: 10),
+                                        Text("Delete"),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          const Divider(),
+
+                          const SizedBox(height: 10),
+
+                          // DATE + BUDGET
+                          Row(
+                            children: [
+
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+
+                                  children: [
+                                    const Text(
+                                      "TRAVEL DATES",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 5),
+
+                                    Text(
+                                      trip["date"],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.end,
+
+                                  children: [
+                                    const Text(
+                                      "BUDGET",
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 5),
+
+                                    Text(
+                                      trip["budget"],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 18),
+
+                          SizedBox(
+                            width: double.infinity,
+
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ItineraryBuilderScreen(
+                                      tripName: trip["name"],
+                                    ),
+                                  ),
+                                );
+                              },
+
+                              icon: const Icon(Icons.visibility),
+
+                              label: const Text(
+                                "VIEW & MANAGE ITINERARY",
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
